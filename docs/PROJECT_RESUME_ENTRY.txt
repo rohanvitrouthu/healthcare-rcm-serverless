@@ -1,0 +1,3 @@
+Title: Enterprise Healthcare Revenue Cycle Management (RCM) Data Platform
+
+Description: Engineered a production-grade data platform on Azure using a Medallion Architecture (Bronze, Silver, Gold) to ingest and process complex clinical and financial healthcare datasets. Leveraged Terraform for Infrastructure as Code and Azure Kubernetes Service (AKS) to host containerized workloads, with end-to-end orchestration managed via Airflow. Implemented high-performance Spark transformations in Databricks, ensuring data reliability with Delta Lake, real-time monitoring through Prometheus/Grafana, and automated CI/CD via GitHub Actions.

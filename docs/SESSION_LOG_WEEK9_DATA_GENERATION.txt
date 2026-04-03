@@ -1,0 +1,60 @@
+# Session Log: Week 9 - Data Generation & Source Simulation
+# Date: 2026-01-19
+
+## Goals
+- Generate synthetic healthcare data for Hospital A and Hospital B.
+- Simulate "Source Systems" by populating Azure SQL Databases.
+- Ingest "Claims" data directly into ADLS Gen2 (Landing Zone).
+- Containerize the data generation and loading process for reproducibility.
+
+## Achievements
+
+### 1. Infrastructure (Terraform)
+- **Resolved Key Vault RBAC Issues:** Fixed "Forbidden" errors by manually assigning "Key Vault Secrets Officer" role and importing it into Terraform state.
+- **Provisioned SQL Databases:**
+  - Deployed `sql-hosp-a-healthcarercm-dev-eastus2` and `sql-hosp-b-healthcarercm-dev-eastus2`.
+  - Used `eastus2` region to avoid provisioning limits encountered in `eastus`.
+  - Created databases `HospitalA_DB` and `HospitalB_DB`.
+  - Stored connection strings and secrets in Key Vault (`kv-healthcarercm-dev`).
+
+### 2. Data Engineering & Simulation
+- **Enhanced Data Generator (`generate_data.py`):**
+  - Updated to support specific schemas for Hospital A vs. Hospital B (e.g., `PatientID` vs `ID`).
+  - Aligned data types with SQL schema (e.g., `ProcedureCode` as int).
+- **Robust SQL Loader (`load_to_sql.py`):**
+  - Added support for parsing Azure ADO.NET connection strings to SQLAlchemy URL format.
+  - Implemented file prefix logic (`HOSP-A_...`) to ensure correct file-to-database mapping.
+  - Included database initialization from `hospital_a.sql` / `hospital_b.sql` schemas.
+- **Claims Upload:**
+  - Updated `upload_claims_to_adls.py` to support Storage Account Key authentication for simpler containerized execution.
+
+### 3. Containerization & Orchestration
+- **Dockerized Source Simulator:**
+  - Created `docker/source-simulator/Dockerfile` based on `python:3.12-slim`.
+  - Installed **Microsoft ODBC Driver 18 for SQL Server** (Debian 12 compatible).
+  - Built and pushed image: `acrhealthcarercmdev.azurecr.io/source-simulator:latest`.
+- **Kubernetes Jobs:**
+  - Created `kubernetes/jobs/source-simulator-hosp-a.yaml` and `source-simulator-hosp-b.yaml`.
+  - Used Kubernetes Secret `simulation-secrets` to securely inject:
+    - SQL Connection Strings
+    - Storage Account Name & Key
+  - Successfully executed jobs on AKS to populate:
+    - **SQL DBs:** ~16,000 rows each (Patients, Encounters, Transactions).
+    - **ADLS Gen2:** `landing/HOSP-A/HOSP-A_claims.csv` and `landing/HOSP-B/HOSP-B_claims.csv`.
+
+### 4. Cost Optimization
+- **Auto-Shutdown Monitor:**
+  - Created `scripts/auto_shutdown_monitor.sh` to monitor the cluster for idle state.
+  - Logic: Shuts down AKS if no pods are `Running` or `Pending` in the default namespace for 10 consecutive minutes.
+  - Usage: Runs locally as a background watcher to prevent unexpected cloud costs.
+
+## Key Files Created/Modified
+- `scripts/data_generation/*.py` (Refactored)
+- `scripts/auto_shutdown_monitor.sh` (New script)
+- `docker/source-simulator/` (New Docker context)
+- `kubernetes/jobs/` (New manifests)
+- `terraform/environments/dev/main.tf` (Updated SQL location)
+
+## Next Steps
+- Develop Airflow DAGs to extract data from Azure SQL (Source) -> ADLS Bronze.
+- Develop Databricks notebooks to process Bronze -> Silver -> Gold.
