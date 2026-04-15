@@ -8,7 +8,7 @@ An enterprise-grade, end-to-end data engineering platform for Healthcare Revenue
 ## 🚀 Key Features & Architecture
 - **Serverless Cloud Infrastructure**: Fully managed resources leveraging Azure Data Factory, Databricks, Azure SQL DB, and ADLS Gen 2.
 - **Infrastructure as Code**: Entire Azure stack seamlessly managed via Terraform.
-- **Data Orchestration**: Apache Airflow configured to parameterize and trigger ADF pipelines.
+- **Data Orchestration**: Azure Data Factory configured to orchestrate, parameterize, and trigger data pipelines.
 - **Data Processing**: Bronze -> Silver -> Gold layered architecture processing Claims and CPT data using Databricks / Delta Lake.
 - **Source Simulation**: Containerized tools to generate synthetic medical data mimicking real Hospital SQL DBs.
 
@@ -16,14 +16,14 @@ An enterprise-grade, end-to-end data engineering platform for Healthcare Revenue
 - ✅ **Phase 1**: Setup Dev Env, Terraform foundations, ADLS Gen2, and Azure Key Vault.
 - ✅ **Phase 2**: Provision Azure SQL DBs (`HospitalA_DB`, `HospitalB_DB`) and generate synthetic claims data (~16k records).
 - ✅ **Phase 3**: Deploy Azure Data Factory Linked Services and Datasets programmatically (IaC).
-- 🔄 **Phase 4**: Configure Airflow DAGs to trigger ADF for data ingestion. *(In Progress)*
+- 🔄 **Phase 4**: Configure Azure Data Factory to orchestrate data ingestion. *(In Progress)*
 - ⏳ **Phase 5**: Databricks processing from Bronze to Silver delta layers.
 
 ## 📁 Repository Structure
 ```text
 .
 ├── .github/workflows/   # CI/CD Pipelines
-├── airflow/             # DAG definitions and configurations
+├── data_factory/        # ADF pipeline definitions and configurations
 ├── databricks/          # Databricks notebooks and Spark processing
 ├── docs/                # Detailed documentation and architecture
 ├── terraform/           # Infrastructure as Code (Azure)
@@ -33,7 +33,7 @@ An enterprise-grade, end-to-end data engineering platform for Healthcare Revenue
 ## 🛠 Tech Stack
 - **Cloud**: Azure (Data Factory, Databricks, ADLS Gen2, Azure SQL, Key Vault)
 - **IaC**: Terraform
-- **Orchestration**: Apache Airflow 3.0
+- **Orchestration**: Azure Data Factory
 - **Data Processing**: PySpark, Delta Lake
 - **Languages**: Python, HCL, SQL
 
@@ -48,4 +48,4 @@ An enterprise-grade, end-to-end data engineering platform for Healthcare Revenue
 2. Set up Azure Service Principal and local configurations.
 3. Initialize Terraform in `terraform/environments/dev`.
 4. Run `terraform apply` to provision the ADF, Databricks, SQL, and ADLS resources.
-5. Deploy Airflow and run DAGs to trigger Data Factory pipelines.
+5. Deploy Azure Data Factory pipelines and trigger them to run data processing.

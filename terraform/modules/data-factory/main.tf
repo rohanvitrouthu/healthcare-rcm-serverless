@@ -111,7 +111,7 @@ resource "azurerm_data_factory_linked_service_azure_databricks" "databricks" {
   data_factory_id            = azurerm_data_factory.adf.id
   adb_domain                 = "https://${var.databricks_workspace_url}"
   msi_work_space_resource_id = var.databricks_workspace_id
-  
+
   new_cluster_config {
     node_type             = "Standard_DS3_v2"
     cluster_version       = "13.3.x-scala2.12"

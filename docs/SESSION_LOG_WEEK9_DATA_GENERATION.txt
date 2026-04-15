@@ -32,20 +32,20 @@
 - **Dockerized Source Simulator:**
   - Created `docker/source-simulator/Dockerfile` based on `python:3.12-slim`.
   - Installed **Microsoft ODBC Driver 18 for SQL Server** (Debian 12 compatible).
-  - Built and pushed image: `acrhealthcarercmdev.azurecr.io/source-simulator:latest`.
-- **Kubernetes Jobs:**
+  - Built and pushed image: `source-simulator:latest`.
+- **Data Generation Jobs:**
   - Created `kubernetes/jobs/source-simulator-hosp-a.yaml` and `source-simulator-hosp-b.yaml`.
-  - Used Kubernetes Secret `simulation-secrets` to securely inject:
+  - Used secure runtime secrets injection to provide:
     - SQL Connection Strings
     - Storage Account Name & Key
-  - Successfully executed jobs on AKS to populate:
+  - Successfully executed jobs to populate:
     - **SQL DBs:** ~16,000 rows each (Patients, Encounters, Transactions).
     - **ADLS Gen2:** `landing/HOSP-A/HOSP-A_claims.csv` and `landing/HOSP-B/HOSP-B_claims.csv`.
 
 ### 4. Cost Optimization
 - **Auto-Shutdown Monitor:**
   - Created `scripts/auto_shutdown_monitor.sh` to monitor the cluster for idle state.
-  - Logic: Shuts down AKS if no pods are `Running` or `Pending` in the default namespace for 10 consecutive minutes.
+  - Logic: Shuts down unused compute if no active work is detected for an extended period.
   - Usage: Runs locally as a background watcher to prevent unexpected cloud costs.
 
 ## Key Files Created/Modified

@@ -12,18 +12,13 @@ graph TD
         CPT[CPT Code Source]
     end
 
-    subgraph "Azure Kubernetes Service (AKS)"
-        subgraph "Airflow Namespace"
-            AF[Apache Airflow 3.0]
-            DAGs[DAGs: NPI, ICD, CPT Pipeline]
-        end
-        
-        subgraph "Monitoring Namespace"
-            PROM[Prometheus]
-            GRAF[Grafana]
+    subgraph "Azure Data Platform"
+        subgraph "Azure Data Factory"
+            ADF[Azure Data Factory]
+            PIPELINES[Pipelines: NPI, ICD, CPT Pipeline]
         end
 
-        subgraph "Ephemeral Pods"
+        subgraph "Containerized Tasks"
             EXT[Extractors]
             PROC[Bronze Processor]
             DQ[Great Expectations]
@@ -35,16 +30,14 @@ graph TD
         SILVER[Silver Zone - Cleaned]
     end
 
-    AF -->|Triggers| EXT
+    ADF -->|Triggers| EXT
     EXT -->|Fetch Data| NPI
     EXT -->|Write Raw| BRONZE
-    AF -->|Triggers| PROC
+    ADF -->|Triggers| PROC
     PROC -->|Read Raw| BRONZE
     PROC -->|Validate| DQ
     PROC -->|Write Parquet| BRONZE
     
-    AF -->|Metrics| PROM
-    PROM -->|Visualize| GRAF
 ```
 
 ## Component Details
@@ -53,7 +46,7 @@ graph TD
 - **Extractors**: Containerized Python applications.
 - **NPI Extractor**: Fetches data from the NPPES NPI Registry API.
 - **ICD/CPT Extractors**: Simulated or API-based extractors for medical codes.
-- **Orchestration**: Managed by `KubernetesPodOperator` in Airflow.
+- **Orchestration**: Managed by Azure Data Factory.
 
 ### 2. Storage Layer (ADLS Gen2)
 - **Bronze**: Raw data in its original format (JSON) and initial Parquet conversion.
@@ -64,10 +57,5 @@ graph TD
 - **Bronze Processor**: Converts raw JSON to optimized Parquet format.
 - **Data Quality**: Integrated Great Expectations (GX) checkpoints to ensure schema validation and data integrity.
 
-### 4. Observability
-- **Prometheus**: Scrapes metrics from Airflow and Kubernetes nodes.
-- **Grafana**: Provides real-time dashboards for DAG performance and system health.
-- **Alertmanager**: Configured for DAG failure alerts.
-
-### 5. CI/CD
+### 4. CI/CD
 - **GitHub Actions**: Automates linting, Docker builds, and Infrastructure as Code (Terraform) deployments.

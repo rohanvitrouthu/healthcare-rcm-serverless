@@ -12,7 +12,7 @@
 ### 1. Automation & CI/CD
 - **GitHub Actions Workflows**:
   - `ci-python.yml`: Implemented linting (Flake8, Black) and unit testing (pytest/unittest) for all Python code.
-  - `docker-build-push.yml`: Automated the build and push process for 5 core Docker images (Extractors, Processors, Data Quality) to Azure Container Registry (ACR).
+  - `docker-build-push.yml`: Automated the build and push process for 5 core Docker images (Extractors, Processors, Data Quality).
   - `terraform-cd.yml`: Established infrastructure automation with `terraform plan` on Pull Requests and `terraform apply` on main branch merges.
 - **Testing**:
   - Added unit tests for `npi_extractor` and `bronze_processor` using `unittest.mock` to simulate API and ADLS interactions.

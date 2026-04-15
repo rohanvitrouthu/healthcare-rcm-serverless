@@ -38,6 +38,24 @@ variable "location" {
   default     = "westus2"
 }
 
+variable "databricks_no_public_ip" {
+  description = "Enable Secure Cluster Connectivity / No Public IP for Databricks. Disabled in dev to avoid managed NAT Gateway charges."
+  type        = bool
+  default     = false
+}
+
+variable "databricks_workspace_suffix" {
+  description = "Suffix for the dev Databricks workspace name. Uses a non-empty suffix to allow safe replacement during cutovers."
+  type        = string
+  default     = "public"
+}
+
+variable "databricks_managed_resource_group_suffix" {
+  description = "Suffix for the Databricks managed resource group name so replacement workspaces do not collide with the existing managed resource group."
+  type        = string
+  default     = "public"
+}
+
 # Resource Group
 resource "azurerm_resource_group" "main" {
   name     = "rg-${var.project_name}-${var.environment}"
@@ -158,7 +176,7 @@ module "data_factory" {
   data_factory_name   = "adf-${var.project_name}-${var.environment}"
   resource_group_name = azurerm_resource_group.main.name
   location            = var.location
-  
+
   key_vault_id             = module.key_vault.key_vault_id
   databricks_workspace_url = module.databricks.workspace_url
   databricks_workspace_id  = module.databricks.workspace_id
@@ -174,10 +192,12 @@ module "data_factory" {
 module "databricks" {
   source = "../../modules/databricks"
 
-  workspace_name      = "dbw-${var.project_name}-${var.environment}"
+  workspace_name      = "dbw-${var.project_name}-${var.environment}-${var.databricks_workspace_suffix}"
   resource_group_name = azurerm_resource_group.main.name
   location            = var.location
+  managed_resource_group_name = "databricks-rg-${azurerm_resource_group.main.name}-${var.databricks_managed_resource_group_suffix}"
   sku                 = "standard"
+  no_public_ip        = var.databricks_no_public_ip
 
   tags = {
     CostCenter  = "DataEngineering"

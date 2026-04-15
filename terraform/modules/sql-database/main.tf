@@ -30,7 +30,7 @@ resource "azurerm_mssql_firewall_rule" "allow_azure_services" {
 
 # Allow All IPs (For Dev/Demo ease of access from local machine - RESTRICT IN PROD)
 # Ideally we would use the user's IP, but "Allow All" is often used in zero-config prototypes.
-# I will comment this out and rely on specific rules if needed, but for now Azure Services covers Databricks/AKS.
+# I will comment this out and rely on specific rules if needed, but for now Azure Services covers Databricks and other Azure-hosted services.
 # If the user needs local access, they can add their IP in the portal or we can add a var.
 resource "azurerm_mssql_firewall_rule" "allow_all" {
   count            = var.allow_all_ips ? 1 : 0

@@ -6,9 +6,9 @@
 ## 1. Architecture Overview
 
 ### Original Implementation
-- **Compute**: Containerized Python scripts running on AKS (Pandas-based).
+- **Compute**: Containerized Python scripts (Pandas-based).
 - **Storage**: ADLS Gen2 (Parquet files).
-- **Orchestration**: Airflow `KubernetesPodOperator` for all steps.
+- **Orchestration**: Workflow-driven container execution for all steps.
 - **Limits**: Lack of ACID transactions, difficult schema evolution, limited scalability for big data joins.
 
 ### New Target Architecture ("Sumit Mittal" Spec)
@@ -50,19 +50,9 @@
 - **Root Cause**: Likely a temporary Azure API issue or provider timeout, though the resource was successfully created in the background.
 - **Resolution**: Used `terraform import` to manually bring the existing Azure resource into the Terraform state, then re-ran `apply` to synchronize.
 
-### Challenge 2: Airflow Helm Upgrade & RBAC
-- **Issue**: `helm upgrade` failed with a `kubelogin` error, then an Azure RBAC error (`User cannot list resource "secrets"`).
-- **Root Cause**:
-  - `kubelogin` binary was missing from the PATH.
-  - The executing user identity lacked the "Azure Kubernetes Service RBAC Cluster Admin" role required to manage Kubernetes secrets via the API.
-- **Resolution**:
-  - Added the project's `kubectl-bin/` to the PATH.
-  - Used `az role assignment create` to grant the Cluster Admin role to the current user.
-  - Waited for RBAC propagation before retrying the Helm upgrade.
-
 ### Challenge 3: Cost Constraints
 - **Constraint**: Strict zero/low cost requirement.
 - **Resolution**:
   - Used Databricks `standard` SKU (no Premium features).
   - Configured Airflow to request "Spot with Fallback" instances for the ephemeral Databricks clusters.
-  - kept the AKS cluster usage minimal.
+  - Kept auxiliary infrastructure usage minimal.
